@@ -91,7 +91,7 @@ VidTube/
 Clone repository:
 
 ```bash
-git clone <YOUR_GITHUB_REPO_URL>
+git clone https://github.com/rawalkritarth/VidTube.git
 cd VidTube
 ```
 
@@ -175,7 +175,7 @@ The project is being built progressively and updated regularly as new features a
 
 **Kritarth Rawal**
 
-GitHub: *(add your GitHub profile link here)*
+GitHub: https://github.com/rawalkritarth
 
 ---
 
