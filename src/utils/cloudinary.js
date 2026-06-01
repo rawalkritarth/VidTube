@@ -33,5 +33,10 @@ return response
         return null
         
     }
+    finally {
+        // ALWAYS runs (this is the key fix)
+        if (localFilePath && fs.existsSync(localFilePath)) {
+            fs.unlinkSync(localFilePath)
+        }}
 }
 export { uploadOnCloudinary}
