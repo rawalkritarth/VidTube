@@ -21,7 +21,8 @@ app.use(cookieParser())
 // import router from './routes/healthcheck.routes.js'
 import healthcheckrouter from './routes/healthcheck.routes.js'
 // imp: defalut export gryo vne we can give any name to it and its works like i have givem router to healthcheck router
-import  userRouter from './routes/user.route.js'
+import  userRouter  from './routes/user.route.js'
+
 
 
 

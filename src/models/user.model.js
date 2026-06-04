@@ -26,6 +26,17 @@ const userSchema = new Schema(
             trim:true,
             index:true,
         },
+        // ─── Email Verification ───────────────────────────────────────
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailOTP: {
+      type: String, // stores hashed OTP
+    },
+    emailOTPExpiry: {
+      type: Date,
+    },
         avatar:{
             type:String, //url clouidnary
             required:true
@@ -63,7 +74,7 @@ const userSchema = new Schema(
 
 userSchema.pre("save",async function (){
 
-    if(!this.isModified("password")) return next()
+    if(!this.isModified("password")) return 
     this.password= await bcrypt.hash(this.password,10)
 
 }  
