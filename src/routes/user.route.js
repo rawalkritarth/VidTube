@@ -1,5 +1,5 @@
  import { Router } from "express";
-import { registerUser,verifyOTP } from "../controllers/user.controller.js";
+import { loginUser, registerUser,verifyOTP } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middlewares.js";
 
 const router = Router()
@@ -17,5 +17,6 @@ router.route("/register").post(
     registerUser)
 
 router.route("/verify-otp").post(verifyOTP);
+router.route("/login").post(loginUser);
 
 export default router
