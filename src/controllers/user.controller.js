@@ -196,7 +196,7 @@ user.refreshToken = crypto.createHash("sha256")
 await user.save({validateBeforeSave:false});
 
 
- // 8. Cookie options — set explicit expiry to match token lifetime
+ //  Cookie options — set explicit expiry to match token lifetime
   const accessTokenOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -211,7 +211,7 @@ await user.save({validateBeforeSave:false});
   };
 
 
-// 9. Build safe user object without a second DB query
+//  Build safe user object without a second DB query
   const loggedInUser = user.toObject();
   delete loggedInUser.password;
   delete loggedInUser.refreshToken;
@@ -238,6 +238,80 @@ return res
 
 })
 
+// ─── STEP 4: Refresh Access Token — rotate tokens using refresh token ─────────
+// POST /api/v1/users/refresh-token
+
+const refreshAccessToken = asyncHandler( async (req,res) => {
+  const incomingRefreshToken=req.cookies.refreshToken || req.body.refreshToken;
+
+  if(!incomingRefreshToken){
+    throw new ApiError(401,"Unauthorized Request")
+  }
+  
+  let decodedToken;
+  try {
+    decodedToken=jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+  } catch (error) {
+    
+    throw new ApiError(401, error?.message || "Invalid refresh token");
+  }
+  const user =await User.findById(decodedToken?._id)
+
+  if(!user){
+    throw new ApiError(401,"Invalid RefreshToken")
+  }
+
+ const incomingHashed = crypto
+    .createHash("sha256")
+    .update(incomingRefreshToken)
+    .digest("hex");
+
+  if (incomingHashed !== user.refreshToken) {
+    throw new ApiError(401, "Refresh token is expired or used");
+  }
+
+  const newAccessToken = user.generateAccessToken();
+  const newRefreshToken = user.generateRefreshToken();
+
+   user.refreshToken = crypto
+    .createHash("sha256")
+    .update(newRefreshToken)
+    .digest("hex");
+  await user.save({ validateBeforeSave: false });
+
+   const accessTokenOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 15 * 60 * 1000,
+  };
+  const refreshTokenOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 10 * 24 * 60 * 60 * 1000,
+  };
+  return res
+  .status(200)
+  .cookie("refreshToken",newRefreshToken,refreshTokenOptions)
+  .cookie( "accessToken",newAccessToken,accessTokenOptions)
+  .json(new ApiResponse(
+    200,
+    {accessToken:newAccessToken,refreshToken:newRefreshToken},
+    "AcessToken Refreshed"
+
+  ))
 
 
-export { registerUser, verifyOTP,loginUser };
+
+})
+
+
+
+export { registerUser, verifyOTP,loginUser,refreshAccessToken };
+
+

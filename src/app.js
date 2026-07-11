@@ -1,6 +1,8 @@
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import { errorHandler } from './middlewares/error.middleware.js'
+import { ApiError } from './utils/ApiError.js'
 
 const app = express()
 app.use(
@@ -30,8 +32,13 @@ import  userRouter  from './routes/user.route.js'
 app.use("/api/v1/healthcheck",healthcheckrouter)
 
 app.use("/api/v1/users",userRouter)
- 
 
+app.use((req, res, next) => {
+  next(new ApiError(404, `Route not found - ${req.originalUrl}`))
+})
+
+ 
+app.use(errorHandler)
 export {app}
 
 

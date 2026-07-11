@@ -6,6 +6,17 @@ dotenv.config({
     path:"./.env"
 })
 
+// process-level safety net — catches errors outside Express's request cycle
+process.on("unhandledRejection", (reason) => {
+  console.error("UNHANDLED REJECTION:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("UNCAUGHT EXCEPTION:", err);
+  process.exit(1); // let your process manager (pm2/nodemon/docker) restart it
+});
+
+
 const port =process.env.PORT || 7000
 
 
